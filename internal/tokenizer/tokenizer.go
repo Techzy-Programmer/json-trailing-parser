@@ -1,51 +1,26 @@
 package tokenizer
 
 // Tokenization rules for JSON Trailing Parser
-// ignore leading and trailing dots
+// Escape sequence is not valid inside array
 
-const (
-	ObjectAccessor = '.'
-	ArrayStart     = '['
-	ArrayEnd       = ']'
-	EscapeChar     = '\\'
-	Wildcard       = '*'
-	TemplateStart  = '{' // To define start of the template accessor
-	TemplateEnd    = '}' // To define end of the template accessor
-)
-
-type TokenAction int
-
-const (
-	Started TokenAction = iota
-	BufferAdded
-	ArrayStarted
-	ArrayEnded
-	ObjectAccessed
-	EscapeStarted
-	EscapeEnded
-	TemplateStarted
-	TemplateEnded
-	Ended
-)
+type Node struct {
+	IsArray  bool
+	Accessor string
+	GetAll   bool
+}
 
 type Tokenizer struct {
 	query      string
 	buffer     string
 	arrayMode  bool
 	escapeMode bool
-	history    []TokenAction
+	history    []tokenAction
 	nodes      []Node
 }
 
 func NewTokenizer(q string) *Tokenizer {
 	return &Tokenizer{
 		query:   q,
-		history: make([]TokenAction, 0),
+		history: make([]tokenAction, 0),
 	}
-}
-
-type Node struct {
-	IsArray  bool
-	Accessor string
-	GetAll   bool
 }

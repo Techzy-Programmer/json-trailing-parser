@@ -1,10 +1,10 @@
 package tokenizer
 
-func (t *Tokenizer) logAction(act TokenAction) {
+func (t *Tokenizer) logAction(act tokenAction) {
 	t.history = append(t.history, act)
 }
 
-func (t *Tokenizer) getLastAction() TokenAction {
+func (t *Tokenizer) getLastAction() tokenAction {
 	return t.history[len(t.history)-1]
 }
 

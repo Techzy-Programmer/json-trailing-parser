@@ -26,11 +26,11 @@ func (t *Tokenizer) validateEndOfInput() error {
 	if t.arrayMode {
 		return &jtparser.ErrInvalidQuery{
 			Query:  t.query,
-			Reason: fmt.Sprintf("expecting accessor or %c found end of input at position %s", ArrayEnd, pos),
+			Reason: fmt.Sprintf("expecting accessor or %c found end of input at position %s", arrayEnd, pos),
 		}
 	}
 
-	if t.getLastAction() == ObjectAccessed {
+	if t.getLastAction() == objectAccessed {
 		return &jtparser.ErrInvalidQuery{
 			Query:  t.query,
 			Reason: "expecting property name found end of input at position " + pos,

@@ -1,16 +1,18 @@
 package tokenizer
 
 import (
+	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/Techzy-Programmer/json-trailing-parser/jtparser"
 )
 
 func (t *Tokenizer) Tokenize() (*[]Node, error) {
-	t.logAction(Started)
+	t.logAction(started)
 	t.nodes = make([]Node, 0)
 
-	if strings.HasPrefix(t.query, string(ArrayStart)) {
+	if strings.HasPrefix(t.query, string(arrayStart)) {
 		return nil, &jtparser.ErrInvalidQuery{
 			Query:  t.query,
 			Reason: "expecting root to be of type object found array at position 0",
@@ -25,49 +27,54 @@ func (t *Tokenizer) Tokenize() (*[]Node, error) {
 		}
 
 		if t.escapeMode {
-			// ToDo: check if this rune is even escapable?
+			if !slices.Contains(escapables, r) {
+				return nil, &jtparser.ErrInvalidQuery{
+					Query:  t.query,
+					Reason: fmt.Sprintf("expecting escape sequence found %c at position %d", r, i),
+				}
+			}
 
 			t.buffer += str
 			t.escapeMode = false
-			t.logAction(EscapeEnded)
+			t.logAction(escapeEnded)
 
 			continue
 		}
 
 		switch r {
-		case EscapeChar:
+		case escapeToken:
 			t.escapeMode = true
-			t.logAction(EscapeStarted)
+			t.logAction(escapeStarted)
 
-		case ArrayStart:
+		case arrayStart:
 			if asErr := t.validateArrayModeState(true, i); asErr != nil {
 				return nil, asErr
 			}
 
 			t.arrayMode = true
 			t.flushBuffer()
-			t.logAction(ArrayStarted)
+			t.logAction(arrayStarted)
 
-		case ArrayEnd:
+		case arrayEnd:
 			if asErr := t.validateArrayModeState(false, i); asErr != nil {
 				return nil, asErr
 			}
 
 			t.flushBuffer()
 			t.arrayMode = false
-			t.logAction(ArrayEnded)
+			t.logAction(arrayEnded)
 
-		case ObjectAccessor:
+		case objectAccessor:
 			if oaErr := t.validateObjectAccessor(i); oaErr != nil {
 				return nil, oaErr
 			}
 
 			t.flushBuffer()
-			t.logAction(ObjectAccessed)
+			t.logAction(objectAccessed)
 
 		default:
 			t.buffer += str
-			t.logAction(BufferAdded)
+			t.logAction(bufferAdded)
 		}
 	}
 
@@ -76,6 +83,6 @@ func (t *Tokenizer) Tokenize() (*[]Node, error) {
 	}
 
 	t.flushBuffer()
-	t.logAction(Ended)
+	t.logAction(ended)
 	return &t.nodes, nil
 }

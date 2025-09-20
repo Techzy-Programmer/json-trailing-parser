@@ -13,15 +13,15 @@ func (t *Tokenizer) validateArrayMode(curr string, i int) error {
 		return nil
 	}
 
-	if strings.Contains(t.buffer, string(Wildcard)) && curr != string(ArrayEnd) {
+	if strings.Contains(t.buffer, string(wildcard)) && curr != string(arrayEnd) {
 		return &jtparser.ErrInvalidQuery{
 			Query:  t.query,
-			Reason: fmt.Sprintf("expecting %c got %s at position %d", ArrayEnd, curr, i),
+			Reason: fmt.Sprintf("expecting %c got %s at position %d", arrayEnd, curr, i),
 		}
 	}
 
 	// If buffer is present already, skip wildcard checking
-	if (t.getLastAction() == BufferAdded || curr != string(Wildcard)) && curr != string(ArrayEnd) {
+	if (t.getLastAction() == bufferAdded || curr != string(wildcard)) && curr != string(arrayEnd) {
 		if _, err := strconv.Atoi(curr); err != nil {
 			return &jtparser.ErrInvalidQuery{
 				Query:  t.query,
@@ -35,7 +35,7 @@ func (t *Tokenizer) validateArrayMode(curr string, i int) error {
 
 func (t *Tokenizer) validateArrayModeState(isStarting bool, i int) error {
 	if isStarting {
-		if t.getLastAction() == ObjectAccessed {
+		if t.getLastAction() == objectAccessed {
 			return &jtparser.ErrInvalidQuery{
 				Query:  t.query,
 				Reason: fmt.Sprintf("illegal dot(.) before array index at position %d", i),
@@ -45,7 +45,7 @@ func (t *Tokenizer) validateArrayModeState(isStarting bool, i int) error {
 		if t.arrayMode {
 			return &jtparser.ErrInvalidQuery{
 				Query:  t.query,
-				Reason: fmt.Sprintf("%c found at position %d expecting accessor or %c", ArrayEnd, i, ArrayStart),
+				Reason: fmt.Sprintf("%c found at position %d expecting accessor or %c", arrayEnd, i, arrayStart),
 			}
 		}
 
@@ -57,7 +57,7 @@ func (t *Tokenizer) validateArrayModeState(isStarting bool, i int) error {
 	if !t.arrayMode { // While the array mode was not previously triggered
 		return &jtparser.ErrInvalidQuery{
 			Query:  t.query,
-			Reason: fmt.Sprintf("%c found at position %d expecting %c", ArrayEnd, i, ArrayStart),
+			Reason: fmt.Sprintf("%c found at position %d expecting %c", arrayEnd, i, arrayStart),
 		}
 	}
 

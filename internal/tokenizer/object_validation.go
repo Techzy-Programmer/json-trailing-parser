@@ -7,7 +7,7 @@ import (
 )
 
 func (t *Tokenizer) validateObjectAccessor(i int) error {
-	if len(t.buffer) == 0 && t.getLastAction() != ArrayEnded {
+	if len(t.buffer) == 0 && t.getLastAction() != arrayEnded {
 		return &jtparser.ErrInvalidQuery{
 			Query:  t.query,
 			Reason: fmt.Sprintf("illegal object accessor at position %d", i),
