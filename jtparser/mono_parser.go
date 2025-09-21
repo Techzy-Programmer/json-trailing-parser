@@ -40,6 +40,9 @@ func (p *MonoParser[T]) ChangeQuery(newQuery string) error {
 
 	p.nodes = nodes
 	p.walker.path = "$"
+	p.walker.previousResults = nil
+	p.walker.searchSpace = &p.SearchSpace
+
 	return nil
 }
 
