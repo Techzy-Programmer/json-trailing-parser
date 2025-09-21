@@ -1,5 +1,7 @@
 package tokenizer
 
+import "strings"
+
 // Tokenization rules for JSON Trailing Parser
 // Escape sequence is not valid inside array
 
@@ -20,7 +22,7 @@ type Tokenizer struct {
 
 func NewTokenizer(q string) *Tokenizer {
 	return &Tokenizer{
-		query:   q,
+		query:   strings.TrimSpace(q),
 		history: make([]tokenAction, 0),
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Techzy-Programmer/json-trailing-parser/jtparser"
+	"github.com/Techzy-Programmer/json-trailing-parser/jterror"
 )
 
 func (t *Tokenizer) validateArrayMode(curr string, i int) error {
@@ -14,7 +14,7 @@ func (t *Tokenizer) validateArrayMode(curr string, i int) error {
 	}
 
 	if strings.Contains(t.buffer, string(wildcard)) && curr != string(arrayEnd) {
-		return &jtparser.ErrInvalidQuery{
+		return &jterror.ErrInvalidQuery{
 			Query:  t.query,
 			Reason: fmt.Sprintf("expecting %c got %s at position %d", arrayEnd, curr, i),
 		}
@@ -23,7 +23,7 @@ func (t *Tokenizer) validateArrayMode(curr string, i int) error {
 	// If buffer is present already, skip wildcard checking
 	if (t.getLastAction() == bufferAdded || curr != string(wildcard)) && curr != string(arrayEnd) {
 		if _, err := strconv.Atoi(curr); err != nil {
-			return &jtparser.ErrInvalidQuery{
+			return &jterror.ErrInvalidQuery{
 				Query:  t.query,
 				Reason: fmt.Sprintf("expecting integer, got %s at position %d", curr, i),
 			}
@@ -36,14 +36,14 @@ func (t *Tokenizer) validateArrayMode(curr string, i int) error {
 func (t *Tokenizer) validateArrayModeState(isStarting bool, i int) error {
 	if isStarting {
 		if t.getLastAction() == objectAccessed {
-			return &jtparser.ErrInvalidQuery{
+			return &jterror.ErrInvalidQuery{
 				Query:  t.query,
 				Reason: fmt.Sprintf("illegal dot(.) before array index at position %d", i),
 			}
 		}
 
 		if t.arrayMode {
-			return &jtparser.ErrInvalidQuery{
+			return &jterror.ErrInvalidQuery{
 				Query:  t.query,
 				Reason: fmt.Sprintf("%c found at position %d expecting accessor or %c", arrayEnd, i, arrayStart),
 			}
@@ -55,14 +55,14 @@ func (t *Tokenizer) validateArrayModeState(isStarting bool, i int) error {
 	// query is trying to end the array mode
 
 	if !t.arrayMode { // While the array mode was not previously triggered
-		return &jtparser.ErrInvalidQuery{
+		return &jterror.ErrInvalidQuery{
 			Query:  t.query,
 			Reason: fmt.Sprintf("%c found at position %d expecting %c", arrayEnd, i, arrayStart),
 		}
 	}
 
 	if len(t.buffer) == 0 { // When there was no accessor provided
-		return &jtparser.ErrInvalidQuery{
+		return &jterror.ErrInvalidQuery{
 			Query:  t.query,
 			Reason: fmt.Sprintf("expecting accessor found end of array at position %d", i),
 		}

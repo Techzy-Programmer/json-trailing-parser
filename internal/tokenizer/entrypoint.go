@@ -5,7 +5,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Techzy-Programmer/json-trailing-parser/jtparser"
+	"github.com/Techzy-Programmer/json-trailing-parser/jterror"
 )
 
 func (t *Tokenizer) Tokenize() (*[]Node, error) {
@@ -13,7 +13,7 @@ func (t *Tokenizer) Tokenize() (*[]Node, error) {
 	t.nodes = make([]Node, 0)
 
 	if strings.HasPrefix(t.query, string(arrayStart)) {
-		return nil, &jtparser.ErrInvalidQuery{
+		return nil, &jterror.ErrInvalidQuery{
 			Query:  t.query,
 			Reason: "expecting root to be of type object found array at position 0",
 		}
@@ -28,7 +28,7 @@ func (t *Tokenizer) Tokenize() (*[]Node, error) {
 
 		if t.escapeMode {
 			if !slices.Contains(escapables, r) {
-				return nil, &jtparser.ErrInvalidQuery{
+				return nil, &jterror.ErrInvalidQuery{
 					Query:  t.query,
 					Reason: fmt.Sprintf("expecting escape sequence found %c at position %d", r, i),
 				}
@@ -51,8 +51,8 @@ func (t *Tokenizer) Tokenize() (*[]Node, error) {
 				return nil, asErr
 			}
 
-			t.arrayMode = true
 			t.flushBuffer()
+			t.arrayMode = true
 			t.logAction(arrayStarted)
 
 		case arrayEnd:
@@ -78,11 +78,12 @@ func (t *Tokenizer) Tokenize() (*[]Node, error) {
 		}
 	}
 
+	t.flushBuffer()
+
 	if eoiErr := t.validateEndOfInput(); eoiErr != nil {
 		return nil, eoiErr
 	}
 
-	t.flushBuffer()
 	t.logAction(ended)
 	return &t.nodes, nil
 }

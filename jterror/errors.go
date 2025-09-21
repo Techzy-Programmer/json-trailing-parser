@@ -1,4 +1,4 @@
-package jtparser
+package jterror
 
 import "fmt"
 
@@ -42,4 +42,14 @@ func (e *ErrKeyNotFound) Error() string {
 	}
 
 	return fmt.Sprintf("key %q not found in array at path %q", e.Key, e.Path)
+}
+
+type ErrTypeMismatch struct {
+	Path   string
+	Key    string
+	Object any
+}
+
+func (e *ErrTypeMismatch) Error() string {
+	return fmt.Sprintf("type mismatch in search space at path %s for key %s\nerrored object >> %v", e.Path, e.Key, e.Object)
 }
